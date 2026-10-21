@@ -466,6 +466,7 @@ body {
   letter-spacing: 0.5px;
 }
 
+.tag-patron { background: rgba(245, 158, 11, 0.25); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.5); font-weight: 800; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
 .tag-equilibrio { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
 .tag-media { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
 .tag-moda { background: rgba(251, 191, 36, 0.2); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.3); }

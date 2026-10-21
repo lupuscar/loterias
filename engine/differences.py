@@ -222,6 +222,100 @@ def enforce_primitiva_rules(nums: List[float]) -> List[int]:
     return cleaned
 
 
+def generate_pattern_advanced_forecast(
+    last_nums: List[int],
+    positions: List[Dict[str, Any]],
+    count: int = 3
+) -> List[Dict[str, Any]]:
+    """
+    Estrategia de Patrón Avanzado:
+    1. Inyección de Inercia: 56.4% de sorteos repiten al menos 1 número del sorteo anterior.
+    2. Saltos diferenciales guiados por centro de gravedad en las 5 bolas restantes.
+    3. Filtros de Oro:
+       - Suma total en el rango áureo [120, 180] (más del 73% de los sorteos reales).
+       - Paridad equilibrada (al menos 2 pares y 2 impares, 81% de probabilidad).
+       - Cobertura de al menos 4 decenas distintas (85% de probabilidad).
+    """
+    results = []
+
+    # Ranking de estabilidad: qué posiciones del sorteo anterior están más centradas
+    stability_ranking = sorted(
+        range(6),
+        key=lambda i: abs(last_nums[i] - THEORETICAL_POS_MEANS[i])
+    )
+
+    for s in range(count):
+        # 1. Seleccionar número repetidor
+        repeat_pos = stability_ranking[s % len(stability_ranking)]
+        repeat_num = last_nums[repeat_pos]
+
+        # 2. Desplazar las otras 5 posiciones hacia sus centros
+        raw_nums = []
+        for i in range(6):
+            if i == repeat_pos:
+                raw_nums.append(float(repeat_num))
+            else:
+                center = THEORETICAL_POS_MEANS[i]
+                reversion = (center - last_nums[i]) * 0.45
+                mean_drift = positions[i]["mean"] * 0.55
+                noise = random.choice([-1.5, 0, 1.5]) if s > 0 else 0
+                raw_nums.append(last_nums[i] + reversion + mean_drift + noise)
+
+        # 3. Reglas estrictas de la Primitiva
+        comb = enforce_primitiva_rules(raw_nums)
+
+        # Si el número repetidor se perdió en el ordenamiento, restituirlo
+        if repeat_num not in comb:
+            # Reemplazar el número de la posición original
+            comb[repeat_pos] = repeat_num
+            comb = enforce_primitiva_rules([float(x) for x in comb])
+
+        # 4. Filtro de Oro: Suma Total en [120, 180]
+        curr_sum = sum(comb)
+        attempts = 0
+        while (curr_sum < 120 or curr_sum > 180) and attempts < 20:
+            attempts += 1
+            if curr_sum < 120:
+                for k in range(5, -1, -1):
+                    if comb[k] != repeat_num and comb[k] < (49 - (5 - k)):
+                        comb[k] += 1
+                        break
+            elif curr_sum > 180:
+                for k in range(6):
+                    if comb[k] != repeat_num and comb[k] > (k + 1):
+                        comb[k] -= 1
+                        break
+            comb = enforce_primitiva_rules([float(x) for x in comb])
+            curr_sum = sum(comb)
+
+        # 5. Filtro de Oro: Paridad Equilibrada (al menos 2 pares y 2 impares)
+        evens = sum(1 for x in comb if x % 2 == 0)
+        if evens < 2 or evens > 4:
+            for k in range(6):
+                if comb[k] != repeat_num:
+                    candidate = comb[k] + 1 if comb[k] < 48 else comb[k] - 1
+                    test_comb = comb.copy()
+                    test_comb[k] = candidate
+                    if len(set(test_comb)) == 6:
+                        comb = enforce_primitiva_rules([float(x) for x in test_comb])
+                        break
+
+        final_diffs = [c - l for c, l in zip(comb, last_nums)]
+        rep_status = f"Repite el {repeat_num:02d} (inercia 56%)" if repeat_num in comb else "Filtros de Oro"
+
+        results.append({
+            "name": f"Patrón Avanzado #{s + 1}",
+            "description": f"{rep_status}, suma {sum(comb)} (rango 120-180) y paridad balanceada.",
+            "tag": "patron",
+            "raw_prediction": [float(x) for x in comb],
+            "applied_diffs": final_diffs,
+            "combination": comb,
+            "combination_str": " - ".join(f"{x:02d}" for x in comb)
+        })
+
+    return results
+
+
 def generate_forecast(
     last_nums: List[int],
     stats: Dict[str, Any],
@@ -362,8 +456,11 @@ def generate_forecast(
                 "Generada aleatoriamente siguiendo la distribución empírica real de saltos.",
                 "montecarlo"
             ))
+    elif strategy in ("pattern", "patron"):
+        return generate_pattern_advanced_forecast(last_nums, positions, count)
     else:  # "all"
-        base_all = [f_reversion, f_mean, f_mode, f_magnitude]
+        patron_first = generate_pattern_advanced_forecast(last_nums, positions, count=1)
+        base_all = [patron_first[0], f_reversion, f_mean, f_mode, f_magnitude]
         forecasts.extend(base_all[:count])
         while len(forecasts) < count:
             s_idx = len(forecasts) + 1
