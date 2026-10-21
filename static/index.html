@@ -58,9 +58,10 @@
       </div>
 
       <div class="hero-bote" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-        <div>
-          <div class="bote-label">Bote Acumulado</div>
-          <div class="bote-amount" id="hero-bote">-- €</div>
+        <div style="text-align: right;">
+          <div class="bote-label" id="hero-bote-label">🔥 Bote Próximo Sorteo</div>
+          <div class="bote-amount" id="hero-bote" style="color: #fbbf24; text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">40.000.000 €</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;" id="hero-bote-sub">Jueves, 22 de octubre de 2026</div>
         </div>
         <button class="btn-secondary" id="btn-hero-sync" onclick="sincronizarResultados(this)" title="Comprueba y actualiza los sorteos oficiales más recientes y sus premios" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1);">
           <span>🔄</span> Sincronizar

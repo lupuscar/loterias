@@ -54,7 +54,27 @@ async function cargarHeroUltimoSorteo() {
     appState.ultimoSorteo = sorteo;
 
     document.getElementById('hero-fecha').textContent = formatearFecha(sorteo.fecha);
-    document.getElementById('hero-bote').textContent = sorteo.bote ? formatEuros(sorteo.bote) : 'Sin bote asignado';
+    
+    // Mostrar Bote (priorizando el bote del próximo sorteo si está disponible)
+    if (sorteo.proximo_bote) {
+      if (document.getElementById('hero-bote-label')) {
+        document.getElementById('hero-bote-label').textContent = '🔥 Bote Próximo Sorteo';
+      }
+      if (document.getElementById('hero-bote')) {
+        document.getElementById('hero-bote').textContent = sorteo.proximo_bote.importe_str || formatEuros(sorteo.proximo_bote.importe);
+      }
+      if (document.getElementById('hero-bote-sub')) {
+        document.getElementById('hero-bote-sub').textContent = sorteo.proximo_bote.fecha;
+      }
+    } else if (sorteo.bote) {
+      if (document.getElementById('hero-bote')) {
+        document.getElementById('hero-bote').textContent = formatEuros(sorteo.bote);
+      }
+    } else {
+      if (document.getElementById('hero-bote')) {
+        document.getElementById('hero-bote').textContent = 'Sin bote asignado';
+      }
+    }
 
     const nums = [sorteo.n1, sorteo.n2, sorteo.n3, sorteo.n4, sorteo.n5, sorteo.n6];
     let html = nums.map(n => `<div class="ball ball-normal ball-lg">${padZero(n)}</div>`).join('');

@@ -48,8 +48,21 @@ def fetch_html_from_url(url: str = "https://www.combinacionganadora.com/primitiv
         return None
 
 
+_cached_proximo_bote = {
+    "fecha": "Jueves, 22 de octubre de 2026",
+    "importe": 40000000.0,
+    "importe_str": "40.000.000 €"
+}
+
+
+def get_cached_proximo_bote() -> Dict[str, Any]:
+    global _cached_proximo_bote
+    return _cached_proximo_bote
+
+
 def parse_draw_and_prizes(html: str) -> Optional[Dict[str, Any]]:
     """Parsea el HTML para extraer el sorteo más reciente y el escrutinio de premios."""
+    global _cached_proximo_bote
     m = re.search(
         r'Loter[íi]a Primitiva\s+[a-záéíóú]+\s+(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4}):\s*([\d,]+)\.\s*Complementario:\s*(\d+)\.\s*Reintegro:\s*(\d+)\.\s*(?:Joker:\s*(\d+))?',
         html,
@@ -67,13 +80,31 @@ def parse_draw_and_prizes(html: str) -> Optional[Dict[str, Any]]:
     if len(nums) != 6:
         return None
 
-    # Buscar bote
+    # Buscar bote del sorteo celebrado
     bote = 0.0
-    m_bote = re.search(r'bote\s*[:\s]*([\d\.,]+)\s*€', html, re.IGNORECASE)
+    m_bote = re.search(r'Bote[:\s]*([\d\.,]+)\s*€', html, re.IGNORECASE)
     if m_bote:
         bote_str = m_bote.group(1).replace('.', '').replace(',', '.')
         try:
             bote = float(bote_str)
+        except Exception:
+            pass
+
+    # Buscar bote del próximo sorteo oficial
+    m_jackpot = re.search(
+        r'primitiva/["\']>La Primitiva</a></div>\s*<div[^>]*data-jackpot[^>]*><small>(.*?)</small><strong>([\d\.,]+)€?</strong>',
+        html,
+        re.IGNORECASE
+    )
+    if m_jackpot:
+        fecha_prox, prox_importe_str = m_jackpot.groups()
+        try:
+            prox_val = float(prox_importe_str.replace('.', '').replace(',', '.'))
+            _cached_proximo_bote = {
+                "fecha": fecha_prox.strip(),
+                "importe": prox_val,
+                "importe_str": f"{prox_val:,.0f} €".replace(',', '.')
+            }
         except Exception:
             pass
 

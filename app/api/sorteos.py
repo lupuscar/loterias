@@ -74,10 +74,12 @@ def get_ultimo_sorteo():
     conn.close()
     if not row:
         raise HTTPException(status_code=404, detail="No hay sorteos registrados.")
-    return dict(row)
+    data = dict(row)
+    data["proximo_bote"] = get_cached_proximo_bote()
+    return data
 
 
-from engine.sync import sync_latest_draw
+from engine.sync import sync_latest_draw, get_cached_proximo_bote
 
 
 @router.post("/sync", response_model=Dict[str, Any])
