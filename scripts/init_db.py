@@ -128,7 +128,7 @@ def init_database():
                 "complementario": clean_int(row.get("complementario")),
                 "joker": str(row.get("joker", "")).strip(),
                 "reintegro": clean_int(row.get("reintegro")),
-                "bote": clean_float(row.get("bote"))
+                "bote": clean_float(row.get("bote")) * 100 if (0 < clean_float(row.get("bote")) < 2000000) else clean_float(row.get("bote"))
             })
 
     # ORDENAR CRONOLÓGICAMENTE: el sorteo más antiguo primero
