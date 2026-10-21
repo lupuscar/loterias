@@ -77,8 +77,9 @@
           <div class="control-group">
             <label class="control-label" for="select-strategy">Estrategia de Pronóstico</label>
             <select class="form-select" id="select-strategy">
+              <option value="markov" selected>🧬 Matriz Condicional (Markov) + Ciclos de Maduración</option>
+              <option value="pattern">🧠 Patrón Avanzado (Inercia 56% + Filtros de Oro)</option>
               <option value="all">🌟 Pack Completo (Todas las estrategias)</option>
-              <option value="pattern" selected>🧠 Patrón Avanzado (Inercia 56% + Filtros de Oro)</option>
               <option value="reversion">⚡ Equilibrio & Regresión al Centro</option>
               <option value="mean">📈 Media Aritmética de Diferencias</option>
               <option value="mode">🎯 Moda de Saltos (Más Frecuentes)</option>
@@ -144,7 +145,8 @@
           <div class="control-group">
             <label class="control-label" for="select-bt-strategy">Estrategia a Evaluar</label>
             <select class="form-select" id="select-bt-strategy">
-              <option value="pattern" selected>🧠 Patrón Avanzado (Inercia 56% + Filtros de Oro)</option>
+              <option value="markov" selected>🧬 Matriz Condicional (Markov) + Ciclos de Maduración</option>
+              <option value="pattern">🧠 Patrón Avanzado (Inercia 56% + Filtros de Oro)</option>
               <option value="all">🌟 Pack Completo (Estrategias Mixtas)</option>
               <option value="reversion">⚡ Equilibrio & Regresión al Centro</option>
               <option value="mean">📈 Media Aritmética de Diferencias</option>
@@ -184,36 +186,64 @@
         </div>
 
         <div id="backtest-results-container" style="display: none;">
+          <!-- Comparativa Directa Modelo vs Azar Puro -->
+          <div class="bt-comparison-grid" id="bt-comparison-box">
+            <div class="bt-comp-card model-card">
+              <div class="comp-label">Efectividad del Modelo</div>
+              <div class="comp-val" id="bt-comp-model-pct">--%</div>
+              <div class="comp-sub" id="bt-comp-model-detail">-- sorteos premiados</div>
+            </div>
+
+            <div class="bt-comp-vs">VS</div>
+
+            <div class="bt-comp-card azar-card">
+              <div class="comp-label">Azar Puro (Control)</div>
+              <div class="comp-val" id="bt-comp-azar-pct">--%</div>
+              <div class="comp-sub" id="bt-comp-azar-detail">-- sorteos premiados</div>
+            </div>
+
+            <div class="bt-comp-card advantage-card">
+              <div class="comp-label">Ventaja Sobre el Azar</div>
+              <div class="comp-val" id="bt-comp-advantage">--</div>
+              <div class="comp-sub" id="bt-comp-advantage-sub">Mejora empírica demostrada</div>
+            </div>
+          </div>
+
           <!-- Banner resumen de sorteos con premio -->
-          <div id="bt-summary-banner" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <span style="font-size: 0.95rem; font-weight: 700; color: #34d399;" id="bt-summary-text">
+          <div id="bt-summary-banner" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span style="font-size: 0.92rem; font-weight: 700; color: #34d399;" id="bt-summary-text">
               Sorteos con al menos 1 premio (≥ 3 aciertos): --%
             </span>
             <span style="font-size: 0.82rem; color: var(--text-secondary);" id="bt-total-tickets-text">
               Total apuestas jugadas: --
             </span>
           </div>
-          <!-- Métricas de aciertos -->
+
+          <!-- Métricas de aciertos desglosadas con comparativa -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 20px 0;">
             <div class="pos-stat-card">
               <div class="pos-num">3 Aciertos</div>
               <div class="pos-mean" id="bt-hits-3" style="color:var(--accent-gold);">--</div>
               <div class="pos-sub" id="bt-pct-3">--%</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="bt-azar-3">Azar: --</div>
             </div>
             <div class="pos-stat-card">
               <div class="pos-num">4 Aciertos</div>
               <div class="pos-mean" id="bt-hits-4" style="color:var(--accent-emerald);">--</div>
               <div class="pos-sub" id="bt-pct-4">--%</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="bt-azar-4">Azar: --</div>
             </div>
             <div class="pos-stat-card">
               <div class="pos-num">5 Aciertos</div>
               <div class="pos-mean" id="bt-hits-5" style="color:var(--accent-blue);">--</div>
               <div class="pos-sub" id="bt-pct-5">--%</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="bt-azar-5">Azar: --</div>
             </div>
             <div class="pos-stat-card">
               <div class="pos-num">6 Aciertos</div>
               <div class="pos-mean" id="bt-hits-6" style="color:var(--accent-rose);">--</div>
               <div class="pos-sub" id="bt-pct-6">--%</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="bt-azar-6">Azar: --</div>
             </div>
             <div class="pos-stat-card">
               <div class="pos-num">Evaluados</div>

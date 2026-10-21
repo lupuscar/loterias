@@ -1,7 +1,7 @@
 import math
 import random
 import sqlite3
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import Dict, List, Optional, Tuple, Any
 
 DB_PATH = "data/primitiva.db"
@@ -138,7 +138,41 @@ def compute_differences(draws: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return diff_records
 
 
-def calculate_positional_stats(diff_records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def calculate_delays(draws: List[Dict[str, Any]]) -> Dict[int, int]:
+    """Calcula cuántos sorteos lleva sin salir cada número (1 al 49)."""
+    delays = {n: 999 for n in range(1, 50)}
+    total = len(draws)
+    for idx in range(total - 1, -1, -1):
+        d = draws[idx]
+        nums = [d["n1"], d["n2"], d["n3"], d["n4"], d["n5"], d["n6"]]
+        dist = total - 1 - idx
+        for n in nums:
+            if delays[n] == 999:
+                delays[n] = dist
+    for n in delays:
+        if delays[n] == 999:
+            delays[n] = total
+    return delays
+
+
+def compute_conditional_transitions(draws: List[Dict[str, Any]]) -> List[Dict[int, Counter]]:
+    """
+    Calcula para cada posición la matriz de transición de saltos condicionales:
+    P(y en posición p en T+1 | x en posición p en T).
+    """
+    transitions = [defaultdict(Counter) for _ in range(6)]
+    for i in range(len(draws) - 1):
+        c_nums = [draws[i]["n1"], draws[i]["n2"], draws[i]["n3"], draws[i]["n4"], draws[i]["n5"], draws[i]["n6"]]
+        n_nums = [draws[i + 1]["n1"], draws[i + 1]["n2"], draws[i + 1]["n3"], draws[i + 1]["n4"], draws[i + 1]["n5"], draws[i + 1]["n6"]]
+        for pos in range(6):
+            transitions[pos][c_nums[pos]][n_nums[pos]] += 1
+    return transitions
+
+
+def calculate_positional_stats(
+    diff_records: List[Dict[str, Any]],
+    draws: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """Estadísticas detalladas por posición con frecuencias y magnitudes."""
     if not diff_records:
         return {"positions": [], "total_pairs": 0}
@@ -189,9 +223,14 @@ def calculate_positional_stats(diff_records: List[Dict[str, Any]]) -> Dict[str, 
             "theoretical_mean": THEORETICAL_POS_MEANS[pos]
         })
 
+    transitions = compute_conditional_transitions(draws) if draws and len(draws) > 1 else None
+    delays = calculate_delays(draws) if draws and len(draws) > 0 else None
+
     return {
         "total_pairs": total_pairs,
-        "positions": pos_stats
+        "positions": pos_stats,
+        "transitions": transitions,
+        "delays": delays
     }
 
 
@@ -220,6 +259,109 @@ def enforce_primitiva_rules(nums: List[float]) -> List[int]:
                 cleaned[i] = cleaned[i - 1] + 1
 
     return cleaned
+
+
+def generate_markov_forecast(
+    last_nums: List[int],
+    transitions: Optional[List[Dict[int, Counter]]],
+    delays: Optional[Dict[int, int]],
+    count: int = 3
+) -> List[Dict[str, Any]]:
+    """
+    Estrategia de Matriz Condicional (Markov) + Ciclos de Maduración:
+    Evalúa para cada posición p qué número y es el más probable condicionado
+    estrictamente al número que salió en el sorteo anterior (last_nums[p]),
+    modulado por la probabilidad a priori gaussiana y el factor de maduración/retraso.
+    """
+    results = []
+
+    for s in range(count):
+        raw_candidates = []
+
+        for pos in range(6):
+            curr_val = last_nums[pos]
+            trans_counter = transitions[pos].get(curr_val, Counter()) if transitions else Counter()
+            center = THEORETICAL_POS_MEANS[pos]
+
+            scored_candidates = []
+            for y in range(1, 50):
+                # 1. Frecuencia condicional real
+                trans_score = (trans_counter.get(y, 0) + 1.0)
+
+                # 2. Prior gravitacional gaussiano hacia el centro posicional
+                dist_center = abs(y - center)
+                prior = math.exp(- (dist_center ** 2) / (2 * (8.5 ** 2)))
+
+                # 3. Factor de maduración / retraso
+                delay = delays.get(y, 10) if delays else 10
+                if 4 <= delay <= 16:
+                    delay_boost = 1.35  # Ventana de maduración óptima
+                elif delay == 0:
+                    delay_boost = 1.25  # Inercia de repetición del sorteo anterior
+                elif delay > 30:
+                    delay_boost = 0.65  # Retraso anómalo / frío
+                else:
+                    delay_boost = 1.0
+
+                weight = trans_score * prior * delay_boost
+                scored_candidates.append((y, weight))
+
+            scored_candidates.sort(key=lambda item: item[1], reverse=True)
+
+            if s == 0:
+                chosen_y = scored_candidates[0][0]
+            else:
+                top_pool = scored_candidates[:6]
+                pool_keys = [item[0] for item in top_pool]
+                pool_weights = [item[1] for item in top_pool]
+                chosen_y = random.choices(pool_keys, weights=pool_weights, k=1)[0]
+
+            raw_candidates.append(float(chosen_y))
+
+        # Reglas de la Primitiva
+        comb = enforce_primitiva_rules(raw_candidates)
+
+        # Filtro de Oro: Suma en [120, 180]
+        curr_sum = sum(comb)
+        attempts = 0
+        while (curr_sum < 120 or curr_sum > 180) and attempts < 20:
+            attempts += 1
+            if curr_sum < 120:
+                for k in range(5, -1, -1):
+                    if comb[k] < (49 - (5 - k)):
+                        comb[k] += 1
+                        break
+            elif curr_sum > 180:
+                for k in range(6):
+                    if comb[k] > (k + 1):
+                        comb[k] -= 1
+                        break
+            comb = enforce_primitiva_rules([float(x) for x in comb])
+            curr_sum = sum(comb)
+
+        # Filtro de Oro: Paridad equilibrada
+        evens = sum(1 for x in comb if x % 2 == 0)
+        if evens < 2 or evens > 4:
+            for k in range(6):
+                candidate = comb[k] + 1 if comb[k] < 48 else comb[k] - 1
+                test_comb = comb.copy()
+                test_comb[k] = candidate
+                if len(set(test_comb)) == 6:
+                    comb = enforce_primitiva_rules([float(x) for x in test_comb])
+                    break
+
+        final_diffs = [c - l for c, l in zip(comb, last_nums)]
+        results.append({
+            "name": f"Matriz Condicional (Markov) #{s + 1}",
+            "description": f"Salto probabilístico condicionado a la bola previa, retrasos maduros y suma {sum(comb)}.",
+            "tag": "markov",
+            "raw_prediction": [float(x) for x in comb],
+            "applied_diffs": final_diffs,
+            "combination": comb,
+            "combination_str": " - ".join(f"{x:02d}" for x in comb)
+        })
+
+    return results
 
 
 def generate_pattern_advanced_forecast(
@@ -456,11 +598,18 @@ def generate_forecast(
                 "Generada aleatoriamente siguiendo la distribución empírica real de saltos.",
                 "montecarlo"
             ))
+    elif strategy in ("markov", "markov_matrix"):
+        transitions = stats.get("transitions")
+        delays = stats.get("delays")
+        return generate_markov_forecast(last_nums, transitions, delays, count=count)
     elif strategy in ("pattern", "patron"):
         return generate_pattern_advanced_forecast(last_nums, positions, count)
     else:  # "all"
+        transitions = stats.get("transitions")
+        delays = stats.get("delays")
+        markov_first = generate_markov_forecast(last_nums, transitions, delays, count=1)
         patron_first = generate_pattern_advanced_forecast(last_nums, positions, count=1)
-        base_all = [patron_first[0], f_reversion, f_mean, f_mode, f_magnitude]
+        base_all = [markov_first[0], patron_first[0], f_reversion, f_mean, f_mode, f_magnitude]
         forecasts.extend(base_all[:count])
         while len(forecasts) < count:
             s_idx = len(forecasts) + 1
@@ -486,14 +635,15 @@ def generate_forecast(
 
 def run_backtesting(
     draws: List[Dict[str, Any]],
-    strategy: str = "reversion",
+    strategy: str = "markov",
     window_size: int = 100,
     max_evals: int = 250,
     bets_per_draw: int = 1
 ) -> Dict[str, Any]:
     """
     Evalúa retrospectivamente la efectividad de una estrategia.
-    Permite evaluar múltiples pronósticos/apuestas (bets_per_draw) por cada sorteo.
+    Permite evaluar múltiples pronósticos/apuestas (bets_per_draw) por cada sorteo
+    y calcula la comparativa directa contra apuestas al azar.
     """
     if len(draws) < window_size + 10:
         window_size = max(10, len(draws) // 4)
@@ -503,6 +653,11 @@ def run_backtesting(
     best_hits_counter = Counter()     # Máximo acierto por sorteo (el mejor boleto)
     total_tickets_counter = Counter() # Conteo acumulado de todos los boletos jugados
     draws_with_prize = 0              # Sorteos con al menos 1 premio (>= 3 aciertos)
+
+    # Control de azar puro para medir ventaja estadística real
+    azar_hits_counter = Counter()
+    azar_draws_with_prize = 0
+
     total_evals = 0
     samples = []
 
@@ -513,7 +668,7 @@ def run_backtesting(
 
         window_draws = draws[idx - window_size:idx]
         diffs = compute_differences(window_draws)
-        stats = calculate_positional_stats(diffs)
+        stats = calculate_positional_stats(diffs, draws=window_draws)
 
         prev = draws[idx - 1]
         last_nums = [prev["n1"], prev["n2"], prev["n3"], prev["n4"], prev["n5"], prev["n6"]]
@@ -524,14 +679,13 @@ def run_backtesting(
         if not preds:
             continue
 
-        # Asegurar K pronósticos (si faltan, completar con simulaciones probabilísticas)
         selected_preds = preds[:bets_per_draw]
         while len(selected_preds) < bets_per_draw:
             extra = generate_forecast(last_nums, stats, strategy="probabilistic", count=bets_per_draw - len(selected_preds))
             selected_preds.extend(extra)
             selected_preds = selected_preds[:bets_per_draw]
 
-        # Evaluar cada boleto
+        # 1. Evaluar boletos del modelo
         draw_best_hits = 0
         draw_best_pred_str = selected_preds[0]["combination_str"]
         draw_best_strategy = selected_preds[0]["name"]
@@ -550,6 +704,17 @@ def run_backtesting(
         if draw_best_hits >= 3:
             draws_with_prize += 1
 
+        # 2. Evaluar control aleatorio (simular K boletos al azar)
+        azar_best_hits = 0
+        for _ in range(bets_per_draw):
+            a_comb = sorted(random.sample(range(1, 50), 6))
+            a_hits = len(set(a_comb).intersection(actual_set))
+            if a_hits > azar_best_hits:
+                azar_best_hits = a_hits
+        azar_hits_counter[azar_best_hits] += 1
+        if azar_best_hits >= 3:
+            azar_draws_with_prize += 1
+
         # Muestras representativas para la tabla
         if len(samples) < 10 or draw_best_hits >= 3:
             if len(samples) < 25:
@@ -562,6 +727,7 @@ def run_backtesting(
                 })
 
     pct_draws_with_prize = round((draws_with_prize / total_evals) * 100, 2) if total_evals else 0
+    azar_pct_prize = round((azar_draws_with_prize / total_evals) * 100, 2) if total_evals else 0
     total_tickets_played = total_evals * bets_per_draw
 
     return {
@@ -584,6 +750,17 @@ def run_backtesting(
         "porcentajes": {
             f"{k}_aciertos": round((best_hits_counter[k] / total_evals) * 100, 2) if total_evals else 0
             for k in range(7)
+        },
+        "comparativa_azar": {
+            "azar_sorteos_con_premio": azar_draws_with_prize,
+            "azar_pct_sorteos_con_premio": azar_pct_prize,
+            "ventaja_modelo": round(pct_draws_with_prize - azar_pct_prize, 2),
+            "azar_aciertos": {
+                "3_aciertos": azar_hits_counter[3],
+                "4_aciertos": azar_hits_counter[4],
+                "5_aciertos": azar_hits_counter[5],
+                "6_aciertos": azar_hits_counter[6],
+            }
         },
         "muestras": sorted(samples, key=lambda x: x["aciertos"], reverse=True)
     }

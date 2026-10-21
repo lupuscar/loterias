@@ -27,7 +27,7 @@ def get_pronosticos(
         raise HTTPException(status_code=400, detail="No hay suficientes sorteos históricos para calcular diferencias.")
 
     diff_records = compute_differences(draws)
-    stats = calculate_positional_stats(diff_records)
+    stats = calculate_positional_stats(diff_records, draws=draws)
 
     last_draw = draws[-1]
     last_nums = [last_draw["n1"], last_draw["n2"], last_draw["n3"],

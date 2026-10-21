@@ -207,6 +207,54 @@ async function ejecutarBacktest() {
     if (!res.ok) throw new Error('Error al ejecutar backtest');
     const data = await res.json();
 
+    // Actualizar Comparativa Directa contra Azar
+    if (data.comparativa_azar) {
+      const az = data.comparativa_azar;
+      if (document.getElementById('bt-comp-model-pct')) {
+        document.getElementById('bt-comp-model-pct').textContent = `${data.pct_sorteos_con_premio}%`;
+      }
+      if (document.getElementById('bt-comp-model-detail')) {
+        document.getElementById('bt-comp-model-detail').textContent = `${data.sorteos_con_premio} de ${data.total_evaluados} sorteos`;
+      }
+      if (document.getElementById('bt-comp-azar-pct')) {
+        document.getElementById('bt-comp-azar-pct').textContent = `${az.azar_pct_sorteos_con_premio}%`;
+      }
+      if (document.getElementById('bt-comp-azar-detail')) {
+        document.getElementById('bt-comp-azar-detail').textContent = `${az.azar_sorteos_con_premio} de ${data.total_evaluados} sorteos`;
+      }
+      const advEl = document.getElementById('bt-comp-advantage');
+      const advSubEl = document.getElementById('bt-comp-advantage-sub');
+      if (advEl) {
+        const adv = az.ventaja_modelo;
+        const sign = adv > 0 ? '+' : '';
+        advEl.textContent = `${sign}${adv}%`;
+        if (adv > 0) {
+          advEl.style.color = '#34d399';
+          if (advSubEl) advSubEl.textContent = 'Superior al azar puro';
+        } else if (adv === 0) {
+          advEl.style.color = '#94a3b8';
+          if (advSubEl) advSubEl.textContent = 'Paridad con el azar';
+        } else {
+          advEl.style.color = '#f87171';
+          if (advSubEl) advSubEl.textContent = 'Inferior al azar en esta muestra';
+        }
+      }
+
+      // Comparativa por aciertos
+      if (az.azar_aciertos) {
+        const azHits = az.azar_aciertos;
+        const azPct3 = Math.round((azHits['3_aciertos'] / data.total_evaluados) * 1000) / 10;
+        const azPct4 = Math.round((azHits['4_aciertos'] / data.total_evaluados) * 1000) / 10;
+        const azPct5 = Math.round((azHits['5_aciertos'] / data.total_evaluados) * 1000) / 10;
+        const azPct6 = Math.round((azHits['6_aciertos'] / data.total_evaluados) * 1000) / 10;
+
+        if (document.getElementById('bt-azar-3')) document.getElementById('bt-azar-3').textContent = `Azar: ${azHits['3_aciertos']} (${azPct3}%)`;
+        if (document.getElementById('bt-azar-4')) document.getElementById('bt-azar-4').textContent = `Azar: ${azHits['4_aciertos']} (${azPct4}%)`;
+        if (document.getElementById('bt-azar-5')) document.getElementById('bt-azar-5').textContent = `Azar: ${azHits['5_aciertos']} (${azPct5}%)`;
+        if (document.getElementById('bt-azar-6')) document.getElementById('bt-azar-6').textContent = `Azar: ${azHits['6_aciertos']} (${azPct6}%)`;
+      }
+    }
+
     // Actualizar banner resumen
     if (document.getElementById('bt-summary-text')) {
       document.getElementById('bt-summary-text').textContent = 
