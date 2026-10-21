@@ -57,9 +57,14 @@
         <!-- Bolas renderizadas dinámicamente -->
       </div>
 
-      <div class="hero-bote">
-        <div class="bote-label">Bote Acumulado</div>
-        <div class="bote-amount" id="hero-bote">-- €</div>
+      <div class="hero-bote" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+        <div>
+          <div class="bote-label">Bote Acumulado</div>
+          <div class="bote-amount" id="hero-bote">-- €</div>
+        </div>
+        <button class="btn-secondary" id="btn-hero-sync" onclick="sincronizarResultados(this)" title="Comprueba y actualiza los sorteos oficiales más recientes y sus premios" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1);">
+          <span>🔄</span> Sincronizar
+        </button>
       </div>
     </section>
 
@@ -413,6 +418,21 @@
               Añade el último sorteo celebrado. La base de datos y los modelos de pronóstico se actualizarán de forma inmediata.
             </p>
           </div>
+        </div>
+
+        <!-- Banner de Sincronización Automática -->
+        <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
+              <span>⚡</span> Sincronización Automática con Loterías Oficiales
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Descarga en 1 clic la combinación ganadora, Joker, complementario, reintegro y todos los premios con sus acertantes oficiales.
+            </div>
+          </div>
+          <button type="button" class="btn-primary" onclick="sincronizarResultados(this)" style="padding: 10px 18px; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);">
+            <span>🔄</span> Sincronizar Ahora
+          </button>
         </div>
 
         <form id="form-nuevo-sorteo" onsubmit="guardarNuevoSorteo(event)">

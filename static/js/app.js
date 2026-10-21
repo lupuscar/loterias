@@ -710,6 +710,49 @@ async function guardarNuevoSorteo(e) {
 }
 
 // ==========================================
+// SINCRONIZACIÓN AUTOMÁTICA DE RESULTADOS
+// ==========================================
+async function sincronizarResultados(btn) {
+  const originalHtml = btn ? btn.innerHTML : null;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> Sincronizando...';
+  }
+
+  try {
+    const res = await fetch('/api/sorteos/sync', { method: 'POST' });
+    if (!res.ok) throw new Error('Error al conectar con el servicio de sincronización');
+    const data = await res.json();
+
+    if (data.status === 'new_draw_inserted') {
+      showToast(data.message, 'success');
+      await cargarHeroUltimoSorteo();
+      if (appState.activeTab === 'historico') {
+        cargarHistorico(1);
+      } else if (appState.activeTab === 'analisis') {
+        cargarEstadisticasDiferencias();
+      }
+    } else if (data.status === 'prizes_updated') {
+      showToast(data.message, 'success');
+      await cargarHeroUltimoSorteo();
+    } else if (data.status === 'already_up_to_date') {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.message || 'Error en la sincronización', 'error');
+    }
+  } catch (err) {
+    showToast('Error al sincronizar: ' + err.message, 'error');
+  } finally {
+    if (btn && originalHtml) {
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }, 800);
+    }
+  }
+}
+
+// ==========================================
 // UTILIDADES Y NOTIFICACIONES
 // ==========================================
 function padZero(num) {

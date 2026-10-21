@@ -77,6 +77,23 @@ def get_ultimo_sorteo():
     return dict(row)
 
 
+from engine.sync import sync_latest_draw
+
+
+@router.post("/sync", response_model=Dict[str, Any])
+@router.get("/sync", response_model=Dict[str, Any])
+def sync_sorteos_endpoint():
+    """
+    Sincroniza automáticamente los resultados y premios oficiales del sorteo
+    más reciente de La Primitiva desde la fuente pública de resultados.
+    """
+    try:
+        result = sync_latest_draw()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error durante la sincronización: {str(e)}")
+
+
 @router.get("/{sorteo_id}", response_model=Dict[str, Any])
 def get_sorteo(sorteo_id: int):
     sorteo = get_draw_by_id(sorteo_id)
