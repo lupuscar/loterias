@@ -9,17 +9,18 @@ services:
       - ./data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
     networks:
-      - traefik-net
+      - traefik_network
     labels:
       - "traefik.enable=true"
-      # Sustituye tu-dominio.com por tu dominio o subdominio real
-      - "traefik.http.routers.primitiva.rule=Host(`primitiva.tudominio.com`)"
+      - "traefik.http.routers.primitiva.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.primitiva.entrypoints=websecure"
       - "traefik.http.routers.primitiva.tls=true"
-      - "traefik.http.routers.primitiva.tls.certresolver=letsencrypt"
       - "traefik.http.services.primitiva.loadbalancer.server.port=8000"
-
+      - "traefik.http.routers.primitiva.middlewares=filtro-ip@file, limite-peticiones@file, cabeceras-seguras@file"
 networks:
-  traefik-net:
+  traefik_network:
     external: true
+    name: ${TRAEFIK_NETWORK:-proxy}
