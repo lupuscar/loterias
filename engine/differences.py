@@ -300,12 +300,50 @@ def generate_forecast(
 
     if strategy == "mean":
         forecasts.append(f_mean)
+        for s in range(1, count):
+            # Variaciones en torno a la media usando saltos ponderados
+            varied = [m + (random.choice([-1, 0, 1]) * (p["std_dev"] * 0.25)) for m, p in zip(mean_diffs, positions)]
+            forecasts.append(build_from_diffs(
+                varied,
+                f"Media con Variación #{s}",
+                "Aplica la media con ajustes probabilísticos de desviación típica.",
+                "media"
+            ))
     elif strategy == "reversion":
         forecasts.append(f_reversion)
+        for s in range(1, count):
+            varied = [r + (random.choice([-1, 0, 1]) * (p["std_dev"] * 0.25)) for r, p in zip(reversion_diffs, positions)]
+            forecasts.append(build_from_diffs(
+                varied,
+                f"Equilibrio & Regresión (Variante #{s})",
+                "Variante del modelo de centro de gravedad con modulación estocástica.",
+                "equilibrio"
+            ))
     elif strategy == "mode":
         forecasts.append(f_mode)
+        for s in range(1, count):
+            # Tomar segundo o tercer salto modal más frecuente
+            varied_mode = []
+            for p in positions:
+                top = p.get("top_diffs", [])
+                idx = min(s, len(top) - 1)
+                varied_mode.append(float(top[idx]["diff"]) if top else float(p["mode"]))
+            forecasts.append(build_from_diffs(
+                varied_mode,
+                f"Moda Secundaria #{s}",
+                "Aplica los siguientes saltos más recurrentes en el histórico.",
+                "moda"
+            ))
     elif strategy == "magnitude":
         forecasts.append(f_magnitude)
+        for s in range(1, count):
+            varied_mag = [m * random.uniform(0.8, 1.2) for m in magnitude_diffs]
+            forecasts.append(build_from_diffs(
+                varied_mag,
+                f"Magnitud Modulada #{s}",
+                "Amplitud media con factor de expansión o contracción.",
+                "magnitud"
+            ))
     elif strategy == "probabilistic":
         for s in range(count):
             sampled = []
@@ -325,8 +363,10 @@ def generate_forecast(
                 "montecarlo"
             ))
     else:  # "all"
-        forecasts.extend([f_reversion, f_mean, f_mode, f_magnitude])
-        for s in range(max(1, count - 4)):
+        base_all = [f_reversion, f_mean, f_mode, f_magnitude]
+        forecasts.extend(base_all[:count])
+        while len(forecasts) < count:
+            s_idx = len(forecasts) + 1
             sampled = []
             for p in positions:
                 counter = p.get("raw_distribution", Counter())
@@ -339,8 +379,8 @@ def generate_forecast(
                     sampled.append(float(p["mode"]))
             forecasts.append(build_from_diffs(
                 sampled,
-                f"Simulación Monte Carlo #{s+1}",
-                "Generada aleatoriamente siguiendo la distribución de probabilidades real.",
+                f"Simulación Monte Carlo #{s_idx}",
+                "Muestreo probabilístico según frecuencias reales.",
                 "montecarlo"
             ))
 

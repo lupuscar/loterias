@@ -141,6 +141,18 @@
         <!-- Controles de Configuración de Backtesting -->
         <div class="controls-grid" style="margin-top: 10px; margin-bottom: 20px;">
           <div class="control-group">
+            <label class="control-label" for="select-bt-strategy">Estrategia a Evaluar</label>
+            <select class="form-select" id="select-bt-strategy">
+              <option value="reversion" selected>⚡ Equilibrio & Regresión al Centro (Recomendada)</option>
+              <option value="mean">📈 Media Aritmética de Diferencias</option>
+              <option value="mode">🎯 Moda de Saltos (Más Frecuentes)</option>
+              <option value="magnitude">📏 Magnitud Típica de Salto</option>
+              <option value="probabilistic">🎲 Simulación Monte Carlo Ponderada</option>
+              <option value="all">🌟 Pack Completo (Estrategias Mixtas)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
             <label class="control-label" for="select-bt-evals">Histórico a Simular</label>
             <select class="form-select" id="select-bt-evals">
               <option value="100">🕒 Últimos 100 sorteos (~1 año)</option>

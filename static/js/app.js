@@ -191,7 +191,9 @@ function copiarCombinacion(combStr, btn) {
 async function ejecutarBacktest() {
   const btn = document.getElementById('btn-run-backtest');
   const resultsDiv = document.getElementById('backtest-results-container');
-  const strategy = document.getElementById('select-strategy').value;
+  const strategy = document.getElementById('select-bt-strategy')
+    ? document.getElementById('select-bt-strategy').value
+    : document.getElementById('select-strategy').value;
   const windowVal = document.getElementById('select-window').value;
   const evalsVal = document.getElementById('select-bt-evals') ? document.getElementById('select-bt-evals').value : 250;
   const betsVal = document.getElementById('select-bt-bets') ? document.getElementById('select-bt-bets').value : 1;
@@ -201,8 +203,7 @@ async function ejecutarBacktest() {
 
   try {
     const winParam = windowVal > 0 ? windowVal : 100;
-    const stratParam = strategy === 'all' ? 'reversion' : strategy;
-    const res = await fetch(`/api/pronosticos/backtesting?strategy=${stratParam}&window_size=${winParam}&max_evals=${evalsVal}&bets_per_draw=${betsVal}`);
+    const res = await fetch(`/api/pronosticos/backtesting?strategy=${strategy}&window_size=${winParam}&max_evals=${evalsVal}&bets_per_draw=${betsVal}`);
     if (!res.ok) throw new Error('Error al ejecutar backtest');
     const data = await res.json();
 
