@@ -20,6 +20,7 @@ services:
       - "traefik.http.routers.primitiva.tls=true"
       - "traefik.http.services.primitiva.loadbalancer.server.port=8000"
       - "traefik.http.routers.primitiva.middlewares=filtro-ip@file, limite-peticiones@file, cabeceras-seguras@file"
+
 networks:
   traefik_network:
     external: true

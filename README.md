@@ -65,19 +65,26 @@ git clone <tu-repositorio-git>
 cd loterias
 ```
 
-### 2. Configurar tu dominio en `docker-compose.yml`
-Edita la regla de host con tu dominio o subdominio:
-```yaml
-- "traefik.http.routers.primitiva.rule=Host(`primitiva.tudominio.com`)"
-```
-
-Asegúrate de que la red externa de Traefik coincida con la de tu servidor (ej. `traefik-net`, `traefik_default` o `web`).
-
-### 3. Levantar el servicio
+### 2. Configurar variables de entorno (.env)
+Copia la plantilla y configura tu dominio y la red externa de Traefik:
 ```bash
-docker compose up -d --build
+cp .env.example .env
+nano .env
 ```
+Ejemplo de `.env`:
+```env
+DOMAIN=primitiva.tudominio.com
+TRAEFIK_NETWORK=backend-with-internet
+```
+
+### 3. Ejecutar el script de despliegue en producción
+El script automatizado realiza comprobaciones de requisitos, backup de la base de datos SQLite, pull de Git (si procede), build optimizado y health check:
+```bash
+./deploy.sh
+```
+
 La base de datos SQLite se almacena en el volumen persistente `./data`, por lo que tus sorteos nuevos nunca se perderán entre actualizaciones de contenedor.
+
 
 ---
 
