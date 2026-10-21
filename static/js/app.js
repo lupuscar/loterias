@@ -18,7 +18,6 @@ let appState = {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   cargarHeroUltimoSorteo();
-  generarPronosticos();
   initNumberPicker();
   setDefaultFechaNuevoSorteo();
 });
