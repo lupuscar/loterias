@@ -7,16 +7,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copiar el código del proyecto y datasets
+# Copiar el código del proyecto, frontend y base de datos SQLite
 COPY app/ ./app/
 COPY engine/ ./engine/
 COPY static/ ./static/
 COPY scripts/ ./scripts/
-COPY sorteos_primitiva.csv .
-COPY sorteos_premios.csv .
-
-# Directorio para la base de datos persistente SQLite
-RUN mkdir -p /app/data
+COPY data/ ./data/
 
 EXPOSE 8000
 

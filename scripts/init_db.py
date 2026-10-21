@@ -81,71 +81,72 @@ def init_database():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_premios_sorteo ON premios(id_sorteo);")
 
     # 1. Cargar y ordenar sorteos cronológicamente
-    print(f"Cargando {SORTEOS_CSV}...")
-    sorteos_raw = []
-    with open(SORTEOS_CSV, mode="r", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            fecha_str = row.get("fecha", "").strip()
-            if not fecha_str:
-                continue
+    if os.path.exists(SORTEOS_CSV):
+        print(f"Cargando {SORTEOS_CSV}...")
+        sorteos_raw = []
+        with open(SORTEOS_CSV, mode="r", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                fecha_str = row.get("fecha", "").strip()
+                if not fecha_str:
+                    continue
 
-            nums = [
-                clean_int(row.get("n1")),
-                clean_int(row.get("n2")),
-                clean_int(row.get("n3")),
-                clean_int(row.get("n4")),
-                clean_int(row.get("n5")),
-                clean_int(row.get("n6"))
-            ]
+                nums = [
+                    clean_int(row.get("n1")),
+                    clean_int(row.get("n2")),
+                    clean_int(row.get("n3")),
+                    clean_int(row.get("n4")),
+                    clean_int(row.get("n5")),
+                    clean_int(row.get("n6"))
+                ]
 
-            # Si alguno es nulo, intentar parsear combinacion
-            if any(n is None for n in nums):
-                comb_str = row.get("combinacion", "")
-                parts = [int(p.strip()) for p in comb_str.replace("-", " ").split() if p.strip().isdigit()]
-                if len(parts) >= 6:
-                    nums = sorted(parts[:6])
+                # Si alguno es nulo, intentar parsear combinacion
+                if any(n is None for n in nums):
+                    comb_str = row.get("combinacion", "")
+                    parts = [int(p.strip()) for p in comb_str.replace("-", " ").split() if p.strip().isdigit()]
+                    if len(parts) >= 6:
+                        nums = sorted(parts[:6])
 
-            # Asegurar orden estrictamente ascendente de n1..n6
-            valid_nums = sorted([n for n in nums if n is not None])
-            if len(valid_nums) < 6:
-                continue
+                # Asegurar orden estrictamente ascendente de n1..n6
+                valid_nums = sorted([n for n in nums if n is not None])
+                if len(valid_nums) < 6:
+                    continue
 
-            n1, n2, n3, n4, n5, n6 = valid_nums[:6]
-            combinacion_formateada = f"{n1:02d} - {n2:02d} - {n3:02d} - {n4:02d} - {n5:02d} - {n6:02d}"
+                n1, n2, n3, n4, n5, n6 = valid_nums[:6]
+                combinacion_formateada = f"{n1:02d} - {n2:02d} - {n3:02d} - {n4:02d} - {n5:02d} - {n6:02d}"
 
-            id_val = row.get("id_sorteo") or row.get("\ufeffid_sorteo") or ""
-            sorteos_raw.append({
-                "id_sorteo": str(id_val).strip(),
-                "fecha": fecha_str,
-                "combinacion": combinacion_formateada,
-                "n1": n1,
-                "n2": n2,
-                "n3": n3,
-                "n4": n4,
-                "n5": n5,
-                "n6": n6,
-                "complementario": clean_int(row.get("complementario")),
-                "joker": str(row.get("joker", "")).strip(),
-                "reintegro": clean_int(row.get("reintegro")),
-                "bote": clean_float(row.get("bote")) * 100 if (0 < clean_float(row.get("bote")) < 2000000) else clean_float(row.get("bote"))
-            })
+                id_val = row.get("id_sorteo") or row.get("\ufeffid_sorteo") or ""
+                sorteos_raw.append({
+                    "id_sorteo": str(id_val).strip(),
+                    "fecha": fecha_str,
+                    "combinacion": combinacion_formateada,
+                    "n1": n1,
+                    "n2": n2,
+                    "n3": n3,
+                    "n4": n4,
+                    "n5": n5,
+                    "n6": n6,
+                    "complementario": clean_int(row.get("complementario")),
+                    "joker": str(row.get("joker", "")).strip(),
+                    "reintegro": clean_int(row.get("reintegro")),
+                    "bote": clean_float(row.get("bote")) * 100 if (0 < clean_float(row.get("bote")) < 2000000) else clean_float(row.get("bote"))
+                })
 
-    # ORDENAR CRONOLÓGICAMENTE: el sorteo más antiguo primero
-    sorteos_raw.sort(key=lambda s: s["fecha"])
+        # ORDENAR CRONOLÓGICAMENTE: el sorteo más antiguo primero
+        sorteos_raw.sort(key=lambda s: s["fecha"])
 
-    print(f"Insertando {len(sorteos_raw)} sorteos en orden cronológico...")
-    insert_sql = """
-        INSERT OR REPLACE INTO sorteos (
-            id_sorteo, fecha, combinacion, n1, n2, n3, n4, n5, n6,
-            complementario, joker, reintegro, bote
-        ) VALUES (
-            :id_sorteo, :fecha, :combinacion, :n1, :n2, :n3, :n4, :n5, :n6,
-            :complementario, :joker, :reintegro, :bote
-        )
-    """
-    cursor.executemany(insert_sql, sorteos_raw)
-    conn.commit()
+        print(f"Insertando {len(sorteos_raw)} sorteos en orden cronológico...")
+        insert_sql = """
+            INSERT OR REPLACE INTO sorteos (
+                id_sorteo, fecha, combinacion, n1, n2, n3, n4, n5, n6,
+                complementario, joker, reintegro, bote
+            ) VALUES (
+                :id_sorteo, :fecha, :combinacion, :n1, :n2, :n3, :n4, :n5, :n6,
+                :complementario, :joker, :reintegro, :bote
+            )
+        """
+        cursor.executemany(insert_sql, sorteos_raw)
+        conn.commit()
 
     # 2. Cargar premios
     if os.path.exists(PREMIOS_CSV):
