@@ -136,12 +136,49 @@
               Simula qué resultados habría obtenido este modelo predictivo en sorteos pasados reales.
             </p>
           </div>
-          <button class="btn-secondary" id="btn-run-backtest" onclick="ejecutarBacktest()">
-            <span>▶</span> Ejecutar Simulación
-          </button>
+        </div>
+
+        <!-- Controles de Configuración de Backtesting -->
+        <div class="controls-grid" style="margin-top: 10px; margin-bottom: 20px;">
+          <div class="control-group">
+            <label class="control-label" for="select-bt-evals">Histórico a Simular</label>
+            <select class="form-select" id="select-bt-evals">
+              <option value="100">🕒 Últimos 100 sorteos (~1 año)</option>
+              <option value="250" selected>🕒 Últimos 250 sorteos (~2,5 años)</option>
+              <option value="500">🕒 Últimos 500 sorteos (~5 años)</option>
+              <option value="1000">🕒 Últimos 1.000 sorteos (~10 años)</option>
+              <option value="4200">🌍 Todo el Histórico (+4.000 sorteos)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="select-bt-bets">Pronósticos / Boletos por Sorteo</label>
+            <select class="form-select" id="select-bt-bets">
+              <option value="1" selected>1 Boleto por sorteo (Apuesta simple)</option>
+              <option value="3">3 Boletos por sorteo</option>
+              <option value="5">5 Boletos por sorteo</option>
+              <option value="8">8 Boletos por sorteo (Boleto estándar 8 columnas)</option>
+              <option value="10">10 Boletos por sorteo</option>
+            </select>
+          </div>
+
+          <div class="control-group" style="justify-content: flex-end;">
+            <button class="btn-secondary" id="btn-run-backtest" onclick="ejecutarBacktest()" style="height: 46px; justify-content: center; width: 100%;">
+              <span>▶</span> Ejecutar Simulación
+            </button>
+          </div>
         </div>
 
         <div id="backtest-results-container" style="display: none;">
+          <!-- Banner resumen de sorteos con premio -->
+          <div id="bt-summary-banner" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span style="font-size: 0.95rem; font-weight: 700; color: #34d399;" id="bt-summary-text">
+              Sorteos con al menos 1 premio (≥ 3 aciertos): --%
+            </span>
+            <span style="font-size: 0.82rem; color: var(--text-secondary);" id="bt-total-tickets-text">
+              Total apuestas jugadas: --
+            </span>
+          </div>
           <!-- Métricas de aciertos -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 20px 0;">
             <div class="pos-stat-card">

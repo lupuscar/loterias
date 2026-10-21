@@ -62,7 +62,8 @@ def get_pronosticos(
 def get_backtesting(
     strategy: str = Query("reversion", description="Estrategia a evaluar"),
     window_size: int = Query(100, ge=10, le=500, description="Tamaño de ventana de aprendizaje"),
-    max_evals: int = Query(200, ge=20, le=1000, description="Sorteos retrospectivos a evaluar")
+    max_evals: int = Query(250, ge=10, le=4500, description="Sorteos retrospectivos a evaluar"),
+    bets_per_draw: int = Query(1, ge=1, le=20, description="Número de pronósticos/apuestas generadas por sorteo")
 ):
     """
     Evalúa la efectividad histórica del modelo de pronósticos simulando predicciones
@@ -76,6 +77,7 @@ def get_backtesting(
         draws=draws,
         strategy=strategy,
         window_size=window_size,
-        max_evals=max_evals
+        max_evals=max_evals,
+        bets_per_draw=bets_per_draw
     )
     return result

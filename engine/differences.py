@@ -351,14 +351,21 @@ def run_backtesting(
     draws: List[Dict[str, Any]],
     strategy: str = "reversion",
     window_size: int = 100,
-    max_evals: int = 300
+    max_evals: int = 250,
+    bets_per_draw: int = 1
 ) -> Dict[str, Any]:
-    """Evalúa retrospectivamente la efectividad de una estrategia."""
+    """
+    Evalúa retrospectivamente la efectividad de una estrategia.
+    Permite evaluar múltiples pronósticos/apuestas (bets_per_draw) por cada sorteo.
+    """
     if len(draws) < window_size + 10:
         window_size = max(10, len(draws) // 4)
 
     start_idx = max(window_size, len(draws) - max_evals)
-    hits_counter = Counter()
+
+    best_hits_counter = Counter()     # Máximo acierto por sorteo (el mejor boleto)
+    total_tickets_counter = Counter() # Conteo acumulado de todos los boletos jugados
+    draws_with_prize = 0              # Sorteos con al menos 1 premio (>= 3 aciertos)
     total_evals = 0
     samples = []
 
@@ -374,40 +381,71 @@ def run_backtesting(
         prev = draws[idx - 1]
         last_nums = [prev["n1"], prev["n2"], prev["n3"], prev["n4"], prev["n5"], prev["n6"]]
 
-        preds = generate_forecast(last_nums, stats, strategy=strategy, count=1)
+        # Generar las K combinaciones para este sorteo
+        strat_to_use = strategy if (bets_per_draw == 1 or strategy != "all") else "all"
+        preds = generate_forecast(last_nums, stats, strategy=strat_to_use, count=bets_per_draw)
         if not preds:
             continue
 
-        predicted_comb = preds[0]["combination"]
-        hits = len(set(predicted_comb).intersection(actual_set))
-        hits_counter[hits] += 1
-        total_evals += 1
+        # Asegurar K pronósticos (si faltan, completar con simulaciones probabilísticas)
+        selected_preds = preds[:bets_per_draw]
+        while len(selected_preds) < bets_per_draw:
+            extra = generate_forecast(last_nums, stats, strategy="probabilistic", count=bets_per_draw - len(selected_preds))
+            selected_preds.extend(extra)
+            selected_preds = selected_preds[:bets_per_draw]
 
-        if len(samples) < 10 or hits >= 3:
+        # Evaluar cada boleto
+        draw_best_hits = 0
+        draw_best_pred_str = selected_preds[0]["combination_str"]
+        draw_best_strategy = selected_preds[0]["name"]
+
+        for p in selected_preds:
+            comb = p["combination"]
+            hits = len(set(comb).intersection(actual_set))
+            total_tickets_counter[hits] += 1
+            if hits > draw_best_hits:
+                draw_best_hits = hits
+                draw_best_pred_str = p["combination_str"]
+                draw_best_strategy = p["name"]
+
+        best_hits_counter[draw_best_hits] += 1
+        total_evals += 1
+        if draw_best_hits >= 3:
+            draws_with_prize += 1
+
+        # Muestras representativas para la tabla
+        if len(samples) < 10 or draw_best_hits >= 3:
             if len(samples) < 25:
                 samples.append({
                     "fecha": target["fecha"],
                     "real": target["combinacion"],
-                    "pronostico": preds[0]["combination_str"],
-                    "estrategia": preds[0]["name"],
-                    "aciertos": hits
+                    "pronostico": draw_best_pred_str,
+                    "estrategia": f"{draw_best_strategy} (de {bets_per_draw} jugados)",
+                    "aciertos": draw_best_hits
                 })
+
+    pct_draws_with_prize = round((draws_with_prize / total_evals) * 100, 2) if total_evals else 0
+    total_tickets_played = total_evals * bets_per_draw
 
     return {
         "total_evaluados": total_evals,
+        "boletos_por_sorteo": bets_per_draw,
+        "total_boletos_jugados": total_tickets_played,
+        "sorteos_con_premio": draws_with_prize,
+        "pct_sorteos_con_premio": pct_draws_with_prize,
         "ventana_utilizada": window_size,
         "estrategia": strategy,
         "aciertos": {
-            "0_aciertos": hits_counter[0],
-            "1_acierto": hits_counter[1],
-            "2_aciertos": hits_counter[2],
-            "3_aciertos": hits_counter[3],
-            "4_aciertos": hits_counter[4],
-            "5_aciertos": hits_counter[5],
-            "6_aciertos": hits_counter[6],
+            "0_aciertos": best_hits_counter[0],
+            "1_acierto": best_hits_counter[1],
+            "2_aciertos": best_hits_counter[2],
+            "3_aciertos": best_hits_counter[3],
+            "4_aciertos": best_hits_counter[4],
+            "5_aciertos": best_hits_counter[5],
+            "6_aciertos": best_hits_counter[6],
         },
         "porcentajes": {
-            f"{k}_aciertos": round((hits_counter[k] / total_evals) * 100, 2) if total_evals else 0
+            f"{k}_aciertos": round((best_hits_counter[k] / total_evals) * 100, 2) if total_evals else 0
             for k in range(7)
         },
         "muestras": sorted(samples, key=lambda x: x["aciertos"], reverse=True)

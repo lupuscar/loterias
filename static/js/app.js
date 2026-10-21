@@ -193,6 +193,8 @@ async function ejecutarBacktest() {
   const resultsDiv = document.getElementById('backtest-results-container');
   const strategy = document.getElementById('select-strategy').value;
   const windowVal = document.getElementById('select-window').value;
+  const evalsVal = document.getElementById('select-bt-evals') ? document.getElementById('select-bt-evals').value : 250;
+  const betsVal = document.getElementById('select-bt-bets') ? document.getElementById('select-bt-bets').value : 1;
 
   btn.disabled = true;
   btn.innerHTML = '<span>⏳</span> Simulando sorteos...';
@@ -200,9 +202,19 @@ async function ejecutarBacktest() {
   try {
     const winParam = windowVal > 0 ? windowVal : 100;
     const stratParam = strategy === 'all' ? 'reversion' : strategy;
-    const res = await fetch(`/api/pronosticos/backtesting?strategy=${stratParam}&window_size=${winParam}&max_evals=250`);
+    const res = await fetch(`/api/pronosticos/backtesting?strategy=${stratParam}&window_size=${winParam}&max_evals=${evalsVal}&bets_per_draw=${betsVal}`);
     if (!res.ok) throw new Error('Error al ejecutar backtest');
     const data = await res.json();
+
+    // Actualizar banner resumen
+    if (document.getElementById('bt-summary-text')) {
+      document.getElementById('bt-summary-text').textContent = 
+        `Sorteos con al menos 1 premio (≥ 3 aciertos): ${data.pct_sorteos_con_premio}% (${data.sorteos_con_premio} de ${data.total_evaluados} sorteos)`;
+    }
+    if (document.getElementById('bt-total-tickets-text')) {
+      document.getElementById('bt-total-tickets-text').textContent = 
+        `Total apuestas analizadas: ${data.total_boletos_jugados.toLocaleString()} (${data.boletos_por_sorteo} boletos/sorteo)`;
+    }
 
     document.getElementById('bt-hits-3').textContent = data.aciertos['3_aciertos'];
     document.getElementById('bt-pct-3').textContent = `${data.porcentajes['3_aciertos']}%`;
@@ -220,11 +232,14 @@ async function ejecutarBacktest() {
 
     // Tabla de muestras
     const tbody = document.getElementById('bt-samples-body');
-    tbody.innerHTML = data.muestras.slice(0, 10).map(s => `
+    tbody.innerHTML = data.muestras.slice(0, 15).map(s => `
       <tr>
         <td>${s.fecha.substring(0, 10)}</td>
         <td><strong style="color:var(--text-primary);">${s.real}</strong></td>
-        <td><span style="color:var(--text-secondary);">${s.pronostico}</span></td>
+        <td>
+          <span style="color:var(--text-secondary); font-family:var(--font-mono); font-size:0.85rem;">${s.pronostico}</span>
+          <div style="font-size:0.75rem; color:var(--text-muted);">${s.estrategia}</div>
+        </td>
         <td>
           <span class="diff-badge ${s.aciertos >= 3 ? 'diff-positive' : 'diff-zero'}">
             ${s.aciertos} aciertos
@@ -234,7 +249,7 @@ async function ejecutarBacktest() {
     `).join('');
 
     resultsDiv.style.display = 'block';
-    showToast(`Backtest completado con éxito sobre ${data.total_evaluados} sorteos históricos`, 'success');
+    showToast(`Backtest completado: ${data.total_evaluados} sorteos simulados con ${data.boletos_por_sorteo} pronóstico(s) por sorteo`, 'success');
   } catch (err) {
     showToast('Error en simulación: ' + err.message, 'error');
   } finally {
