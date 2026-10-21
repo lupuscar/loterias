@@ -1,0 +1,20 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Bases de datos generadas (se generan desde los CSVs con init_db.py)
+data/*.db
+data/*.sqlite3
+
+# Entornos y logs
+.env
+*.log
+
+# IDEs
+.vscode/
+.idea/

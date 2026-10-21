@@ -1,0 +1,25 @@
+services:
+  primitiva-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: primitiva_analytics
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - traefik-net
+    labels:
+      - "traefik.enable=true"
+      # Sustituye tu-dominio.com por tu dominio o subdominio real
+      - "traefik.http.routers.primitiva.rule=Host(`primitiva.tudominio.com`)"
+      - "traefik.http.routers.primitiva.entrypoints=websecure"
+      - "traefik.http.routers.primitiva.tls=true"
+      - "traefik.http.routers.primitiva.tls.certresolver=letsencrypt"
+      - "traefik.http.services.primitiva.loadbalancer.server.port=8000"
+
+networks:
+  traefik-net:
+    external: true
