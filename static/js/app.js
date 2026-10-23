@@ -418,12 +418,12 @@ function renderChart(posData) {
     appState.chartInstance.destroy();
   }
 
-  // Colores: verde para positivos, rojo para negativos, dorado para la moda
+  // Colores: verde oficial para positivos, cian/esmeralda suave para negativos, dorado para la moda
   const backgroundColors = filteredKeys.map(k => {
     if (k === posData.mode) return '#fbbf24';
-    if (k > 0) return 'rgba(59, 130, 246, 0.75)';
-    if (k < 0) return 'rgba(139, 92, 246, 0.75)';
-    return 'rgba(16, 185, 129, 0.75)';
+    if (k > 0) return 'rgba(16, 185, 129, 0.85)';
+    if (k < 0) return 'rgba(6, 182, 212, 0.75)';
+    return 'rgba(52, 211, 153, 0.9)';
   });
 
   appState.chartInstance = new Chart(ctx, {

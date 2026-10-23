@@ -127,6 +127,14 @@ if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def serve_favicon():
+    favicon_file = os.path.join(STATIC_DIR, "img", "primitiva_icon.svg")
+    if os.path.exists(favicon_file):
+        return FileResponse(favicon_file, media_type="image/svg+xml")
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+
 @app.get("/", include_in_schema=False)
 def serve_index():
     index_file = os.path.join(STATIC_DIR, "index.html")

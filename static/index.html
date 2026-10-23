@@ -14,6 +14,9 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Favicon Oficial La Primitiva -->
+  <link rel="icon" type="image/svg+xml" href="/static/img/primitiva_icon.svg">
+
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
@@ -23,11 +26,18 @@
     <!-- Header -->
     <header class="app-header">
       <div class="brand">
-        <div class="brand-logo">🎱</div>
-        <div class="brand-text">
-          <h1>Primitiva Analytics</h1>
-          <p>Motor predictivo por diferencias posicionales consecutivas</p>
-        </div>
+        <a href="/" class="brand-link" title="La Primitiva - Loterías y Apuestas del Estado">
+          <div class="brand-logo-container">
+            <img src="/static/img/primitiva_icon.svg" alt="Emblema Oficial La Primitiva" class="brand-logo-img">
+          </div>
+          <div class="brand-text">
+            <div class="brand-title-wrap">
+              <h1 class="brand-title">LA PRIMITIVA</h1>
+              <span class="badge-selae">SELAE OFICIAL</span>
+            </div>
+            <p class="brand-subtitle">Analytics Predictivo & Histórico de Diferencias Posicionales</p>
+          </div>
+        </a>
       </div>
 
       <nav class="nav-tabs" role="tablist">
@@ -522,6 +532,16 @@
         </form>
       </div>
     </main>
+    <!-- Footer Corporativo Oficial SELAE -->
+    <footer style="margin-top: 50px; padding: 24px 0; border-top: 1px solid var(--bg-card-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; color: var(--text-muted); font-size: 0.82rem;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="/static/img/primitiva_icon.svg" alt="SELAE" style="width: 24px; height: 24px; opacity: 0.85;">
+        <span>Estética y simbología oficial de <strong>La Primitiva</strong> &middot; Loterías y Apuestas del Estado (SELAE)</span>
+      </div>
+      <div>
+        <span>Motor analítico por Diferencias Posicionales &copy; 2026</span>
+      </div>
+    </footer>
   </div>
 
   <!-- Modal Detalle Premios -->
