@@ -62,6 +62,7 @@ def get_database_info():
 
 
 @router.post("/seed", response_model=Dict[str, Any])
+@router.get("/seed/update", response_model=Dict[str, Any])
 def update_seed_endpoint():
     """
     Genera y actualiza el archivo de semilla comprimido (seed.sql.gz)

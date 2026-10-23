@@ -209,9 +209,14 @@ def sync_from_selae_api(db_path: str = DB_PATH, proxies: Optional[Dict[str, str]
         elif joker_raw:
             joker = str(joker_raw).strip()
 
-        # Bote: SELAE devuelve el bote en céntimos (dividir por 100 si es mayor a 2 millones)
+        # Normalización del bote: el bote mínimo oficial de La Primitiva son 2.000.000 €
         raw_bote = clean_float(item.get("premio_bote", 0))
-        bote = raw_bote / 100.0 if raw_bote > 2000000 else raw_bote
+        if raw_bote > 200000000:  # si viniera en céntimos (> 200 millones)
+            bote = raw_bote / 100.0
+        elif 0 < raw_bote < 2000000:  # si vino escalado/dividido (ej: 400.000 -> 40.000.000)
+            bote = raw_bote * 100.0
+        else:
+            bote = raw_bote
 
         cursor.execute("""
             INSERT INTO sorteos (
@@ -331,6 +336,8 @@ def parse_draw_and_prizes(html: str) -> Optional[Dict[str, Any]]:
         bote_str = m_bote.group(1).replace('.', '').replace(',', '.')
         try:
             bote = float(bote_str)
+            if 0 < bote < 2000000:
+                bote = bote * 100.0
         except Exception:
             pass
 

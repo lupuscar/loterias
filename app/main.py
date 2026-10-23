@@ -58,6 +58,17 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"Error inicializando base de datos: {e}")
 
+    # Normalizar escala de botes en sorteos donde vino dividido por 100 (< 2.000.000 €)
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute("UPDATE sorteos SET bote = 40000000.0 WHERE fecha LIKE '2026-10-22%' AND bote < 2000000")
+        c.execute("UPDATE sorteos SET bote = bote * 100 WHERE bote > 0 AND bote < 2000000")
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error normalizando botes: {e}")
+
     # Iniciar worker en segundo plano
     sync_task = asyncio.create_task(background_auto_sync_loop())
     yield

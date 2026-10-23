@@ -45,7 +45,17 @@ def list_sorteos(
     """
     params.extend([page_size, offset])
     cursor.execute(query, params)
-    rows = [dict(r) for r in cursor.fetchall()]
+    rows = []
+    need_commit = False
+    for r in cursor.fetchall():
+        d = dict(r)
+        if 0 < d.get("bote", 0) < 2000000:
+            d["bote"] = d["bote"] * 100.0
+            cursor.execute("UPDATE sorteos SET bote = ? WHERE id = ?", (d["bote"], d["id"]))
+            need_commit = True
+        rows.append(d)
+    if need_commit:
+        conn.commit()
     conn.close()
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 1
@@ -71,10 +81,15 @@ def get_ultimo_sorteo():
         LIMIT 1
     """)
     row = cursor.fetchone()
-    conn.close()
     if not row:
+        conn.close()
         raise HTTPException(status_code=404, detail="No hay sorteos registrados.")
     data = dict(row)
+    if 0 < data.get("bote", 0) < 2000000:
+        data["bote"] = data["bote"] * 100.0
+        cursor.execute("UPDATE sorteos SET bote = ? WHERE id = ?", (data["bote"], data["id"]))
+        conn.commit()
+    conn.close()
     data["proximo_bote"] = get_cached_proximo_bote()
     return data
 
