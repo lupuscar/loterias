@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
     # Comprobar si la base de datos existe; si no, inicializarla automáticamente
     db_file = os.path.join(os.path.dirname(__file__), "..", "data", "primitiva.db")
     if not os.path.exists(db_file):
-        print("Base de datos no encontrada. Inicializando desde CSVs...")
+        print("Base de datos no encontrada. Inicializando automáticamente desde la semilla...")
         try:
             from scripts.init_db import init_database
             init_database()

@@ -118,6 +118,11 @@ fi
 # 5. Opcional: Actualizar código desde Git si estamos en un repositorio
 if [ -d .git ]; then
     log_info "Repositorio Git detectado."
+    # Desvincular base de datos viva de Git si todavía estaba en el índice local del servidor
+    if git ls-files --error-unmatch data/primitiva.db >/dev/null 2>&1; then
+        git rm --cached data/primitiva.db >/dev/null 2>&1 || true
+    fi
+
     # Comprobar si hay cambios locales no guardados
     if ! git diff-index --quiet HEAD -- 2>/dev/null; then
         log_warning "Existen cambios locales no commiteados en el repositorio."

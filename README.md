@@ -41,10 +41,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Inicializar la base de datos SQLite (si se desea regenerar desde los CSVs)
+### 2. Inicializar la base de datos SQLite (restauración instantánea desde semilla)
 ```bash
 python3 scripts/init_db.py
 ```
+> La base de datos viva se almacena en `data/primitiva.db` (no rastreada en Git para evitar conflictos de producción). Si no existe, se restaura en 0,2s a partir de la semilla comprimida `data/seed.sql.gz`.
+> - Para regenerar la semilla con datos actuales: `python3 scripts/init_db.py --dump-seed`
+> - Para forzar la recreación local desde la semilla: `python3 scripts/init_db.py --force`
 
 ### 3. Iniciar el servidor de desarrollo
 ```bash

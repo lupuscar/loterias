@@ -14,3 +14,10 @@ __pycache__/
 # IDEs
 .vscode/
 .idea/
+
+# Base de datos SQLite viva y copias de seguridad (la semilla seed.sql.gz sí se versiona)
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+data/backups/
