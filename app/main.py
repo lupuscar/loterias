@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from app.api.sorteos import router as sorteos_router
 from app.api.estadisticas import router as estadisticas_router
 from app.api.pronosticos import router as pronosticos_router
+from app.api.database import router as database_router
 from engine.differences import get_db_connection
 
 import asyncio
@@ -86,6 +87,7 @@ app.add_middleware(
 app.include_router(sorteos_router)
 app.include_router(estadisticas_router)
 app.include_router(pronosticos_router)
+app.include_router(database_router)
 
 
 @app.get("/api/health", tags=["Health"])

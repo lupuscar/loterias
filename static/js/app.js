@@ -772,6 +772,33 @@ async function sincronizarResultados(btn) {
   }
 }
 
+async function actualizarSemillaWeb(btn) {
+  const originalHtml = btn ? btn.innerHTML : null;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> Generando semilla...';
+  }
+
+  try {
+    const res = await fetch('/api/database/seed', { method: 'POST' });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || 'Error al actualizar la semilla');
+    }
+    const data = await res.json();
+    showToast(data.message || 'Semilla actualizada correctamente', 'success');
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  } finally {
+    if (btn && originalHtml) {
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }, 800);
+    }
+  }
+}
+
 // ==========================================
 // UTILIDADES Y NOTIFICACIONES
 // ==========================================

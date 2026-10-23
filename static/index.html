@@ -63,9 +63,14 @@
           <div class="bote-amount" id="hero-bote" style="color: #fbbf24; text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">40.000.000 €</div>
           <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;" id="hero-bote-sub">Jueves, 22 de octubre de 2026</div>
         </div>
-        <button class="btn-secondary" id="btn-hero-sync" onclick="sincronizarResultados(this)" title="Comprueba y actualiza los sorteos oficiales más recientes y sus premios" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1);">
-          <span>🔄</span> Sincronizar
-        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+          <button class="btn-secondary" id="btn-hero-sync" onclick="sincronizarResultados(this)" title="Comprueba y actualiza los sorteos oficiales más recientes y sus premios" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1);">
+            <span>🔄</span> Sincronizar
+          </button>
+          <button class="btn-secondary" id="btn-hero-seed" onclick="actualizarSemillaWeb(this)" title="Genera y actualiza la semilla comprimida (seed.sql.gz) a partir de los sorteos actuales" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;">
+            <span>🌱</span> Actualizar Semilla
+          </button>
+        </div>
       </div>
     </section>
 
@@ -434,6 +439,29 @@
           <button type="button" class="btn-primary" onclick="sincronizarResultados(this)" style="padding: 10px 18px; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);">
             <span>🔄</span> Sincronizar Ahora
           </button>
+        </div>
+
+        <!-- Banner de Gestión de Semilla y Copias -->
+        <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.15)); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem; color: #34d399; display: flex; align-items: center; gap: 8px;">
+              <span>🌱</span> Semilla Histórica (seed.sql.gz)
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Congela el estado actual de la base de datos en una semilla comprimida (~0.48 MB) para arranques limpios o descárgala directamente.
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary" onclick="actualizarSemillaWeb(this)" style="padding: 8px 14px; font-size: 0.82rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+              <span>🌱</span> Actualizar Semilla
+            </button>
+            <a href="/api/database/seed/download" class="btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>📥</span> Descargar Semilla
+            </a>
+            <a href="/api/database/download" class="btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>💾</span> Descargar SQLite (.db)
+            </a>
+          </div>
         </div>
 
         <form id="form-nuevo-sorteo" onsubmit="guardarNuevoSorteo(event)">
