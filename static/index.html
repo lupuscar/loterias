@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Primitiva Analytics & Pronósticos Inteligentes</title>
-  <meta name="description" content="Plataforma de análisis de diferencias posicionales y pronósticos matemáticos para la Lotería Primitiva con histórico completo y backtesting.">
+  <meta name="description"
+    content="Plataforma de análisis de diferencias posicionales y pronósticos matemáticos para la Lotería Primitiva con histórico completo y backtesting.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,6 +24,7 @@
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
 <body>
 
   <div class="container">
@@ -70,14 +75,20 @@
       <div class="hero-bote" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
         <div style="text-align: right;">
           <div class="bote-label" id="hero-bote-label">🔥 Bote Próximo Sorteo</div>
-          <div class="bote-amount" id="hero-bote" style="color: #fbbf24; text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">40.000.000 €</div>
-          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;" id="hero-bote-sub">Jueves, 22 de octubre de 2026</div>
+          <div class="bote-amount" id="hero-bote"
+            style="color: #fbbf24; text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">40.000.000 €</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;" id="hero-bote-sub">Jueves, 22
+            de octubre de 2026</div>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
-          <button class="btn-secondary" id="btn-hero-sync" onclick="sincronizarResultados(this)" title="Comprueba y actualiza los sorteos oficiales más recientes y sus premios" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1);">
+          <button class="btn-secondary" id="btn-hero-sync" onclick="sincronizarResultados(this)"
+            title="Comprueba y actualiza los sorteos oficiales más recientes y sus premios"
+            style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.1);">
             <span>🔄</span> Sincronizar
           </button>
-          <button class="btn-secondary" id="btn-hero-seed" onclick="actualizarSemillaWeb(this)" title="Genera y actualiza la semilla comprimida (seed.sql.gz) a partir de los sorteos actuales" style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;">
+          <button class="btn-secondary" id="btn-hero-seed" onclick="actualizarSemillaWeb(this)"
+            title="Genera y actualiza la semilla comprimida (seed.sql.gz) a partir de los sorteos actuales"
+            style="padding: 6px 12px; font-size: 0.78rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;">
             <span>🌱</span> Actualizar Semilla
           </button>
         </div>
@@ -91,7 +102,8 @@
       <div class="glass-card">
         <div class="card-title-row">
           <h2 class="card-title"><span class="icon">⚙️</span> Configuración del Generador</h2>
-          <span style="font-size:0.85rem; color:var(--text-secondary);">Basado en el último sorteo + distribución de diferencias</span>
+          <span style="font-size:0.85rem; color:var(--text-secondary);">Basado en el último sorteo + distribución de
+            diferencias</span>
         </div>
 
         <div class="controls-grid">
@@ -144,13 +156,15 @@
           <h2 class="card-title"><span class="icon">✨</span> Combinaciones Sugeridas para el Próximo Sorteo</h2>
         </div>
         <div class="predictions-grid" id="predictions-container">
-          <div style="text-align: center; color: var(--text-secondary); grid-column: 1/-1; padding: 48px 24px; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--bg-card-border); border-radius: var(--radius-md);">
+          <div
+            style="text-align: center; color: var(--text-secondary); grid-column: 1/-1; padding: 48px 24px; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--bg-card-border); border-radius: var(--radius-md);">
             <div style="font-size: 2.2rem; margin-bottom: 12px; opacity: 0.85;">🔮</div>
             <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">
               Configura tus opciones y pulsa "Generar Pronósticos"
             </div>
             <div style="font-size: 0.88rem; color: var(--text-muted); max-width: 520px; margin: 0 auto;">
-              Elige tu estrategia matemática preferida, la ventana de aprendizaje y la cantidad de combinaciones a calcular para el próximo sorteo.
+              Elige tu estrategia matemática preferida, la ventana de aprendizaje y la cantidad de combinaciones a
+              calcular para el próximo sorteo.
             </div>
           </div>
         </div>
@@ -206,7 +220,8 @@
           </div>
 
           <div class="control-group" style="justify-content: flex-end;">
-            <button class="btn-secondary" id="btn-run-backtest" onclick="ejecutarBacktest()" style="height: 46px; justify-content: center; width: 100%;">
+            <button class="btn-secondary" id="btn-run-backtest" onclick="ejecutarBacktest()"
+              style="height: 46px; justify-content: center; width: 100%;">
               <span>▶</span> Ejecutar Simulación
             </button>
           </div>
@@ -237,7 +252,8 @@
           </div>
 
           <!-- Banner resumen de sorteos con premio -->
-          <div id="bt-summary-banner" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div id="bt-summary-banner"
+            style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <span style="font-size: 0.92rem; font-weight: 700; color: #34d399;" id="bt-summary-text">
               Sorteos con al menos 1 premio (≥ 3 aciertos): --%
             </span>
@@ -247,7 +263,8 @@
           </div>
 
           <!-- Métricas de aciertos desglosadas con comparativa -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 20px 0;">
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 20px 0;">
             <div class="pos-stat-card">
               <div class="pos-num">3 Aciertos</div>
               <div class="pos-mean" id="bt-hits-3" style="color:var(--accent-gold);">--</div>
@@ -280,7 +297,8 @@
           </div>
 
           <!-- Muestra de simulaciones pasadas -->
-          <h4 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--text-secondary);">Muestra de sorteos simulados:</h4>
+          <h4 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--text-secondary);">Muestra de sorteos
+            simulados:</h4>
           <div class="table-wrapper">
             <table class="styled-table">
               <thead>
@@ -326,9 +344,11 @@
         </div>
 
         <!-- Deep Dive de la Posición Seleccionada -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 24px;">
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 24px;">
           <!-- Gráfico -->
-          <div style="background: rgba(0,0,0,0.25); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--bg-card-border);">
+          <div
+            style="background: rgba(0,0,0,0.25); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--bg-card-border);">
             <h3 id="chart-title" style="font-size: 1rem; margin-bottom: 16px; color: var(--text-primary);">
               Distribución de Saltos - Posición 1
             </h3>
@@ -338,7 +358,8 @@
           </div>
 
           <!-- Métricas avanzadas -->
-          <div style="background: rgba(0,0,0,0.25); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--bg-card-border);">
+          <div
+            style="background: rgba(0,0,0,0.25); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--bg-card-border);">
             <h3 style="font-size: 1rem; margin-bottom: 16px; color: var(--text-primary);">
               Detalle Matemático de la Posición
             </h3>
@@ -353,7 +374,8 @@
       <div class="glass-card">
         <div class="card-title-row">
           <h2 class="card-title"><span class="icon">🔄</span> Historial Reciente de Saltos Consecutivos</h2>
-          <span style="font-size:0.85rem; color:var(--text-secondary);">Diferencia posicional exacta $n_i(T) - n_i(T-1)$</span>
+          <span style="font-size:0.85rem; color:var(--text-secondary);">Diferencia posicional exacta $n_i(T) -
+            n_i(T-1)$</span>
         </div>
 
         <div class="table-wrapper">
@@ -381,13 +403,16 @@
       <div class="glass-card">
         <div class="card-title-row">
           <h2 class="card-title"><span class="icon">🔍</span> Consultor de Sorteos Históricos</h2>
-          <span id="historico-total-badge" style="font-size:0.85rem; color:var(--accent-blue); font-weight:700;">-- sorteos</span>
+          <span id="historico-total-badge" style="font-size:0.85rem; color:var(--accent-blue); font-weight:700;">--
+            sorteos</span>
         </div>
 
         <!-- Buscador -->
         <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px;">
-          <input type="text" class="form-input" id="search-date" placeholder="Buscar por año o mes (ej: 2024, 2023-08)" style="max-width: 320px;" oninput="debounceBuscarHistorico()">
-          <input type="number" class="form-input" id="search-number" placeholder="Contiene número (1-49)" min="1" max="49" style="max-width: 220px;" oninput="debounceBuscarHistorico()">
+          <input type="text" class="form-input" id="search-date" placeholder="Buscar por año o mes (ej: 2024, 2023-08)"
+            style="max-width: 320px;" oninput="debounceBuscarHistorico()">
+          <input type="number" class="form-input" id="search-number" placeholder="Contiene número (1-49)" min="1"
+            max="49" style="max-width: 220px;" oninput="debounceBuscarHistorico()">
           <button class="btn-secondary" onclick="limpiarFiltrosHistorico()">Limpiar Filtros</button>
         </div>
 
@@ -412,7 +437,8 @@
         </div>
 
         <!-- Paginación -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 14px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 14px;">
           <div style="font-size: 0.85rem; color: var(--text-muted);" id="pagination-info">Página 1 de 1</div>
           <div style="display: flex; gap: 8px;">
             <button class="btn-secondary" id="btn-page-prev" onclick="cambiarPagina(-1)">◀ Anterior</button>
@@ -431,44 +457,55 @@
           <div>
             <h2 class="card-title"><span class="icon">➕</span> Registrar Nuevo Sorteo</h2>
             <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">
-              Añade el último sorteo celebrado. La base de datos y los modelos de pronóstico se actualizarán de forma inmediata.
+              Añade el último sorteo celebrado. La base de datos y los modelos de pronóstico se actualizarán de forma
+              inmediata.
             </p>
           </div>
         </div>
 
         <!-- Banner de Sincronización Automática -->
-        <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div
+          style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15)); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
           <div>
-            <div style="font-weight: 700; font-size: 0.95rem; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
+            <div
+              style="font-weight: 700; font-size: 0.95rem; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
               <span>⚡</span> Sincronización Automática con Loterías Oficiales
             </div>
             <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
-              Descarga en 1 clic la combinación ganadora, Joker, complementario, reintegro y todos los premios con sus acertantes oficiales.
+              Descarga en 1 clic la combinación ganadora, Joker, complementario, reintegro y todos los premios con sus
+              acertantes oficiales.
             </div>
           </div>
-          <button type="button" class="btn-primary" onclick="sincronizarResultados(this)" style="padding: 10px 18px; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);">
+          <button type="button" class="btn-primary" onclick="sincronizarResultados(this)"
+            style="padding: 10px 18px; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);">
             <span>🔄</span> Sincronizar Ahora
           </button>
         </div>
 
         <!-- Banner de Gestión de Semilla y Copias -->
-        <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.15)); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div
+          style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.15)); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
           <div>
-            <div style="font-weight: 700; font-size: 0.95rem; color: #34d399; display: flex; align-items: center; gap: 8px;">
+            <div
+              style="font-weight: 700; font-size: 0.95rem; color: #34d399; display: flex; align-items: center; gap: 8px;">
               <span>🌱</span> Semilla Histórica (seed.sql.gz)
             </div>
             <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
-              Congela el estado actual de la base de datos en una semilla comprimida (~0.48 MB) para arranques limpios o descárgala directamente.
+              Congela el estado actual de la base de datos en una semilla comprimida (~0.48 MB) para arranques limpios o
+              descárgala directamente.
             </div>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn-secondary" onclick="actualizarSemillaWeb(this)" style="padding: 8px 14px; font-size: 0.82rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+            <button type="button" class="btn-secondary" onclick="actualizarSemillaWeb(this)"
+              style="padding: 8px 14px; font-size: 0.82rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
               <span>🌱</span> Actualizar Semilla
             </button>
-            <a href="/api/database/seed/download" class="btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="/api/database/seed/download" class="btn-secondary"
+              style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <span>📥</span> Descargar Semilla
             </a>
-            <a href="/api/database/download" class="btn-secondary" style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="/api/database/download" class="btn-secondary"
+              style="padding: 8px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <span>💾</span> Descargar SQLite (.db)
             </a>
           </div>
@@ -497,8 +534,10 @@
             </div>
 
             <!-- Preview bolas seleccionadas -->
-            <div style="display: flex; gap: 10px; min-height: 54px; margin: 12px 0; align-items: center;" id="preview-bolas-seleccionadas">
-              <span style="color: var(--text-muted); font-size: 0.9rem;">Pulsa los números en la cuadrícula inferior...</span>
+            <div style="display: flex; gap: 10px; min-height: 54px; margin: 12px 0; align-items: center;"
+              id="preview-bolas-seleccionadas">
+              <span style="color: var(--text-muted); font-size: 0.9rem;">Pulsa los números en la cuadrícula
+                inferior...</span>
             </div>
 
             <!-- Cuadrícula 1..49 -->
@@ -533,10 +572,11 @@
       </div>
     </main>
     <!-- Footer Corporativo Oficial SELAE -->
-    <footer style="margin-top: 50px; padding: 24px 0; border-top: 1px solid var(--bg-card-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; color: var(--text-muted); font-size: 0.82rem;">
+    <footer
+      style="margin-top: 50px; padding: 24px 0; border-top: 1px solid var(--bg-card-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; color: var(--text-muted); font-size: 0.82rem;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <img src="/static/img/primitiva_icon.svg" alt="SELAE" style="width: 24px; height: 24px; opacity: 0.85;">
-        <span>Estética y simbología oficial de <strong>La Primitiva</strong> &middot; Loterías y Apuestas del Estado (SELAE)</span>
+        <span><strong>La Primitiva</strong> &middot; Loterías y Apuestas del Estado (SELAE)</span>
       </div>
       <div>
         <span>Motor analítico por Diferencias Posicionales &copy; 2026</span>
@@ -572,4 +612,5 @@
   <!-- Scripts -->
   <script src="/static/js/app.js"></script>
 </body>
+
 </html>
